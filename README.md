@@ -1,8 +1,9 @@
 # Introdução
 
-**Aluno:** Gabriel Matheus Ferreira Viana
-**Disciplina:** UX/UI e Testes de Software
-**Atividade:** Testes de caixa cinza em API de autenticação
+- **Aluno:** Gabriel Matheus Ferreira Viana (RA 252088)
+- **Curso:** Análise e Desenvolvimento de Sistemas, Unifacens
+- **Disciplina:** UX/UI e Testes de Software
+- **Atividade:** Testes de caixa cinza em API de autenticação
 
 Este repositório documenta a configuração e a execução de testes funcionais de autenticação na API do **Supabase**, usando o **Postman Desktop**. Em um teste de **caixa cinza**, o testador conhece parte da estrutura do sistema (endpoint, headers, formato do body e respostas HTTP), mas não o código interno.
 
@@ -20,7 +21,21 @@ Aplicar testes de caixa cinza em uma API de autenticação, executando requisiç
 
 **Objetivo da configuração:** ter um ambiente de autenticação real, com um usuário válido, para testar cenários de sucesso e de erro.
 
-**Credenciais obtidas:** Project URL (`base_url`) e Publishable key (`api_key`). A `secret key` não foi utilizada nem exposta.
+**Credenciais obtidas:** Project URL (`base_url`) e Publishable key (`api_key`). A `secret key` não foi utilizada nos testes nem copiada para o repositório (no print das API Keys ela aparece mascarada).
+
+**Identificação do aluno no ambiente:** o projeto pertence à minha conta no Supabase (papel *Owner*, print 06) e o Workspace do Postman está no meu nome (print 07 do Postman). A organização usa o apelido `matheusviana14`.
+
+### Informações registradas para os testes
+
+| Item | Registro |
+|---|---|
+| Nome do projeto | `teste-auth-matheus` |
+| Região | South America (São Paulo), `sa-east-1` |
+| Tipo de autenticação | E-mail e senha (provider Email) |
+| API URL | `https://<project-id>.supabase.co` (valor completo no print 01) |
+| API KEY | Publishable key `sb_publishable_...` (print 05) |
+| Usuário de teste | criado manualmente no painel, com e-mail confirmado automaticamente (print 04) |
+| Senha do usuário | definida por mim, usada apenas via variável `{{password}}` |
 
 ### Evidências
 
@@ -31,7 +46,7 @@ Aplicar testes de caixa cinza em uma API de autenticação, executando requisiç
 | Autenticação habilitada | ![Auth habilitada](prints/03-auth-habilitada.png) |
 | Usuário criado | ![Usuário criado](prints/04-usuario-criado.png) |
 | Credenciais da API | ![Credenciais](prints/05-credenciais-api.png) |
-| Configuração do projeto | ![Config do projeto](prints/06-config-projeto.png) |
+| Configuração do projeto e identificação do aluno (conta Owner) | ![Config do projeto](prints/06-config-projeto.png) |
 
 # Configuração do Postman
 
@@ -57,7 +72,7 @@ Aplicar testes de caixa cinza em uma API de autenticação, executando requisiç
 | Workspace criado | ![Workspace](prints/07-workspace.png) |
 | Environment criado | ![Environment](prints/08-environment.png) |
 | Variáveis configuradas | ![Variáveis](prints/09-variaveis.png) |
-| Organização do Postman | ![Organização](prints/13-requisicao-criada.png) |
+| Organização do Postman (coleção `Auth Supabase` com as 5 requisições e environment ativo) | ![Organização](prints/18-credenciais-invalidas.png) |
 
 # Configuração das Requisições
 
@@ -108,6 +123,7 @@ Foram executados os 5 cenários obrigatórios, cada um em uma requisição da co
 **Validações feitas em cada teste:** status HTTP, corpo JSON, mensagem de erro, presença (ou ausência) do `access_token` e comportamento geral da autenticação.
 
 **Erros encontrados:** nenhum erro de funcionamento. Observações de comportamento:
+
 - Senha incorreta, usuário inexistente e e-mail malformado retornam a mesma resposta (`invalid_credentials`).
 - Só os campos vazios geram `validation_failed`.
 
@@ -130,6 +146,18 @@ Os testes foram registrados na planilha [`planilha/testes-caixa-cinza.xlsx`](pla
 
 **Falhas identificadas:** nenhuma falha de funcionamento. Todos os cenários se comportaram como esperado. Foram anotadas na planilha as observações sobre a mensagem genérica de erro.
 
+### Exemplos dos registros realizados
+
+| ID | Cenário | Entrada | Resultado esperado | Resultado obtido | Status | Observações |
+|---|---|---|---|---|---|---|
+| CT01 | Login válido | E-mail e senha corretos | Status 200 + access token | 200 OK, `access_token` retornado | Sucesso | Token expira em 3600 s |
+| CT02 | Senha incorreta | E-mail válido + senha `senhaerrada123` | Erro de autenticação | 400 Bad Request, `invalid_credentials` | Sucesso | Nenhum token devolvido |
+| CT03 | Usuário inexistente | `naoexiste@teste.com` + senha válida | Acesso negado | 400 Bad Request, `invalid_credentials` | Sucesso | Mesma mensagem da senha incorreta (evita enumeração de usuários) |
+| CT04 | Campos vazios | `email: ""` e `password: ""` | Erro de validação | 400 Bad Request, `validation_failed`, "missing email or phone" | Sucesso | Validação ocorre antes da checagem de credenciais |
+| CT05 | Credenciais inválidas | `email: "abc"` e `password: "123"` | Mensagem de erro | 400 Bad Request, `invalid_credentials`, "Invalid login credentials" | Sucesso | E-mail em formato inválido não gerou erro de validação; a API respondeu com a mensagem genérica |
+
+### Print da planilha preenchida
+
 ![Planilha preenchida](prints/19-planilha.png)
 
 # Resultados Obtidos
@@ -138,7 +166,7 @@ Os testes foram registrados na planilha [`planilha/testes-caixa-cinza.xlsx`](pla
 - O login válido retornou **200 OK** com `access_token`, `refresh_token`, `expires_in: 3600` e os dados do usuário.
 - Os 4 cenários inválidos retornaram **400 Bad Request**, sem nenhum token.
 - A API diferencia erro de **validação** (campos vazios) de erro de **credenciais** (demais casos).
-- A coleção e o environment exportados estão na pasta [`postman/`](postman/).
+- A coleção e o environment exportados estão na pasta [`postman/`](postman/). O environment foi exportado com os valores em branco de propósito, para não publicar chave e senha no repositório. Para reproduzir, basta importar os dois arquivos e preencher `base_url`, `api_key`, `email` e `password`.
 
 # Conclusão
 
