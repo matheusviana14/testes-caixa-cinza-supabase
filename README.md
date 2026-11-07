@@ -140,25 +140,33 @@ Foram executados os 5 cenários obrigatórios, cada um em uma requisição da co
 
 # Registro dos Testes
 
-Os testes foram registrados na planilha [`planilha/testes-caixa-cinza.xlsx`](planilha/testes-caixa-cinza.xlsx), com as colunas: ID do teste, Cenário, Entrada, Resultado esperado, Resultado obtido, Status e Observações.
+Os testes foram registrados na planilha [`planilha/testes-caixa-cinza.xlsx`](planilha/testes-caixa-cinza.xlsx), que segue o modelo de plano de teste disponibilizado pelo professor, com três abas:
+
+- **INFORMATIVO:** dados do projeto, responsável, data e ambiente de teste (CachyOS, Postman Desktop e Supabase Auth).
+- **SISTEMA:** os 5 testes por componente, com as colunas ID, Título, Funcionalidade/Componente, Execução, Resultado esperado, Status e Obs. A entrada utilizada está em Execução e o resultado obtido está em Obs.
+- **ACEITAÇÃO:** os mesmos 5 testes por requisito ("Fazer Login"), com as colunas ID, Requisito, Operação, Resultado esperado, Comentário do cliente, Status e Riscos/Ações.
 
 **Importância da documentação:** registrar entrada, resultado esperado e resultado obtido torna os testes reproduzíveis, permite comparar execuções futuras e deixa evidente se o comportamento da API mudou.
 
-**Falhas identificadas:** nenhuma falha de funcionamento. Todos os cenários se comportaram como esperado. Foram anotadas na planilha as observações sobre a mensagem genérica de erro.
+**Falhas identificadas:** nenhuma falha de funcionamento. Todos os cenários se comportaram como esperado. As observações registradas na planilha são: o Supabase devolve `400` (e não `401`) para credenciais inválidas, e a mesma mensagem genérica para senha incorreta e usuário inexistente, o que evita descobrir quais e-mails existem.
 
 ### Exemplos dos registros realizados
 
-| ID | Cenário | Entrada | Resultado esperado | Resultado obtido | Status | Observações |
-|---|---|---|---|---|---|---|
-| CT01 | Login válido | E-mail e senha corretos | Status 200 + access token | 200 OK, `access_token` retornado | Sucesso | Token expira em 3600 s |
-| CT02 | Senha incorreta | E-mail válido + senha `senhaerrada123` | Erro de autenticação | 400 Bad Request, `invalid_credentials` | Sucesso | Nenhum token devolvido |
-| CT03 | Usuário inexistente | `naoexiste@teste.com` + senha válida | Acesso negado | 400 Bad Request, `invalid_credentials` | Sucesso | Mesma mensagem da senha incorreta (evita enumeração de usuários) |
-| CT04 | Campos vazios | `email: ""` e `password: ""` | Erro de validação | 400 Bad Request, `validation_failed`, "missing email or phone" | Sucesso | Validação ocorre antes da checagem de credenciais |
-| CT05 | Credenciais inválidas | `email: "abc"` e `password: "123"` | Mensagem de erro | 400 Bad Request, `invalid_credentials`, "Invalid login credentials" | Sucesso | E-mail em formato inválido não gerou erro de validação; a API respondeu com a mensagem genérica |
+| ID | Título | Execução | Resultado esperado | Status | Obs. |
+|---|---|---|---|---|---|
+| 1 | Login válido | POST com e-mail e senha corretos | Status 200 e retorno do access_token | Sucesso | Obtido: 200 OK, token expira em 3600 s |
+| 2 | Senha incorreta | POST com e-mail válido e senha `senhaerrada123` | Erro de autenticação, sem token | Sucesso | Obtido: 400, `invalid_credentials` |
+| 3 | Usuário inexistente | POST com `naoexiste@teste.com` e senha válida | Acesso negado, sem token | Sucesso | Obtido: 400, `invalid_credentials` (o acesso negado vem como 400, não 401) |
+| 4 | Campos vazios | POST com email e password vazios | Erro de validação | Sucesso | Obtido: 400, `validation_failed`, "missing email or phone" |
+| 5 | Credenciais inválidas | POST com `abc` e `123` | Mensagem de erro | Sucesso | Obtido: 400, `invalid_credentials` |
 
 ### Print da planilha preenchida
 
-![Planilha preenchida](prints/19-planilha.png)
+| Aba | Print |
+|---|---|
+| INFORMATIVO | ![Aba INFORMATIVO](prints/19-planilha-informativo.png) |
+| SISTEMA | ![Aba SISTEMA](prints/19-planilha-sistema.png) |
+| ACEITAÇÃO | ![Aba ACEITAÇÃO](prints/19-planilha-aceitacao.png) |
 
 # Resultados Obtidos
 
